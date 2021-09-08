@@ -1,18 +1,54 @@
-name: Docker Image CI
-
+# GitHubでDockerイメージも同時にpushするためのコードのテスト
+name: Publish Test Docker image by Github Actions
 on:
-  push:
+  # release:
+  #   types: [published]
+    push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-
 jobs:
-
-  build:
-
-    runs-on: ubuntu-latest
-
+  push_to_registry:
+    # name: Push Docker image to Docker Hub
+    # runs-on: ubuntu-latest
+    runs-on: centos-7.7
     steps:
-    - uses: actions/checkout@v2
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      # - name: Check out the repo
+        uses: actions/checkout@v2
+
+      # Note: This workflow uses the latest stable version of the Dart SDK.
+      # You can specify other versions if desired, see documentation here:
+      # https://github.com/dart-lang/setup-dart/blob/main/README.md
+      # - uses: dart-lang/setup-dart@v1
+      - uses: dart-lang/setup-dart@9a04e6d73cca37bd455e0608d7e5092f881fd603
+      # ここからFlutterのインストール・セットアップ
+      - uses: subosito/flutter-action@v1
+      with:
+        flutter-version: '2.2.1'
+      - run: flutter pub get
+      - run: flutter test
+      - run: flutter build web
+      # ここまで
+      - run: git clone https://Housei-r-tanaka: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@github.com/xinglun/failure_web.git --depth 1 -b stable _flutter
+      - run: $GITHUB_WORKSPACE/_flutter/bin/flutter build web
+        working-directory: ./
+        # working-directory: ./のパスは、14行目のruns-on: centos-7.7の下に作成される
+
+      # - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          # username: ${{ secrets.DOCKER_USERNAME }}
+          username: ${{ secrets.housei20tanaka }}
+          # password: ${{ secrets.DOCKER_PASSWORD }}
+          password: ${{ secrets.20rt-housei21 }}
+      # - name: Push to Docker Hub
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          # tags: my-docker-hub-namespace/my-docker-hub-repository:latest
+          tags: projectdev/test:tagname
+
+
+
+
+
