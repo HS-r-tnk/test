@@ -1,5 +1,5 @@
 # GitHubでDockerイメージも同時にpushするためのコードのテスト
-name: Publish Test Docker image by Github Actions
+name: Publish Test Docker image by Github Actions2
 on:
   # release:
   #   types: [published]
